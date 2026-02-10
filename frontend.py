@@ -37,7 +37,7 @@ else:
         st.write("You said:", user_text)
 
 if user_text:
-    r = requests.post("http://127.0.0.1:8000/coach", json={"text": user_text})
+    r = requests.post("https://ai-speaking-coach-85ox.onrender.com/coach", json={"text": user_text})
     reply = r.json()["reply"]
     st.write(reply)
 
