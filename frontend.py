@@ -1,5 +1,5 @@
 import streamlit as st
-import requests, subprocess, sys, time, socket, tempfile, os
+import requests, tempfile, os
 from dotenv import load_dotenv
 from groq import Groq
 from gtts import gTTS
@@ -8,22 +8,19 @@ from streamlit_mic_recorder import mic_recorder
 load_dotenv()
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# start backend if not running
-if socket.socket().connect_ex(("127.0.0.1", 8000)) != 0:
-    subprocess.Popen([sys.executable, "-m", "uvicorn", "backend:app"])
-    time.sleep(2)
-
 st.title("AI Speaking Coach")
 st.caption("Practice speaking, get grammar feedback, and receive helpful AI responses in real time.")
-mode = st.radio("Choose input:", ["Text", "Voice"])
 
+mode = st.radio("Choose input:", ["Text", "Voice"])
 user_text = None
 
+# TEXT
 if mode == "Text":
     t = st.text_input("Type your sentence")
     if st.button("Send") and t:
         user_text = t
 
+# VOICE
 else:
     audio = mic_recorder(start_prompt="Speak", stop_prompt="Stop")
     if audio:
@@ -36,8 +33,12 @@ else:
         user_text = txt.text
         st.write("You said:", user_text)
 
+# CALL BACKEND
 if user_text:
-    r = requests.post("https://ai-speaking-coach-85ox.onrender.com/coach", json={"text": user_text})
+    r = requests.post(
+        "https://ai-speaking-coach-85ox.onrender.com/coach",
+        json={"text": user_text}
+    )
     reply = r.json()["reply"]
     st.write(reply)
 
