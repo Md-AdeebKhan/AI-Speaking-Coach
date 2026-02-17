@@ -9,37 +9,35 @@ load_dotenv()
 app = FastAPI()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+conversation_memory = []
+
 class TextInput(BaseModel):
     text: str
 
 @app.post("/coach")
 def coach(data: TextInput):
 
-    prompt = f"""
-You are an AI English Speaking Coach and Assistant.
+    conversation_memory.append({"role":"user","content":data.text})
 
-STEP 1 — Language Feedback
-- Check grammar of the sentence.
-- If incorrect: provide corrected sentence + short explanation.
-- If correct: write "Sentence is already correct."
+    system_prompt = """
+You are an English Speaking Coach.
 
-STEP 2 — Assistant Response
-- Answer the user's question naturally and helpfully.
-
-Respond strictly in this format:
-
-Language Feedback:
-Corrected sentence:
-Explanation:
-
-Assistant Response:
-
-User input: {data.text}
+For every user message:
+1. Provide grammar correction
+2. Suggest a better sentence
+3. Give a short simple explanation
+4. Continue conversation naturally
 """
+
+    messages = [{"role":"system","content":system_prompt}] + conversation_memory
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": prompt}]
+        messages=messages
     )
 
-    return {"reply": response.choices[0].message.content}
+    reply = response.choices[0].message.content
+
+    conversation_memory.append({"role":"assistant","content":reply})
+
+    return {"reply": reply}
