@@ -94,9 +94,9 @@ if user_text:
     typing_placeholder.info("🤖 Coach is thinking...")
 
     response = requests.post(
-        "https://ai-speaking-coach-backend.onrender.com/coach",
-        json={"text": user_text}
-    )
+    "https://ai-speaking-coach-backend.onrender.com/coach",
+    json={"text": user_text}
+)
 
     typing_placeholder.empty()
 
