@@ -94,7 +94,7 @@ if user_text:
     typing_placeholder.info("🤖 Coach is thinking...")
 
     response = requests.post(
-        "http://127.0.0.1:8000/coach",
+        "https://ai-speaking-coach-backend.onrender.com/coach",
         json={"text": user_text}
     )
 
